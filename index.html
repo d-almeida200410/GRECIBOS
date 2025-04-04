@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Recibos</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/coruja.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollToPlugin.min.js"></script>
+</head>
+<body>
+    <div class="logo-container animate__animated animate__bounceIn">
+        <img src="img/logo.png" alt="Logo Escola" class="logo-circle">
+    </div>
+
+    <div class="container animate__animated animate__fadeInUp">
+        <h1><span class="gradient-text">Gerador de Recibos</span></h1>
+        
+        <div class="form-card">
+            <form id="reciboForm">
+                <div class="form-group">
+                    <label for="alunoSelect">Aluno:</label>
+                    <select id="alunoSelect" required class="input-glow">
+                        <option value="">Selecione um aluno</option>
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="mesReferencia">Mês de Referência:</label>
+                        <input type="month" id="mesReferencia" required class="input-glow">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="dataVencimento">Data de Vencimento:</label>
+                        <input type="date" id="dataVencimento" required class="input-glow">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="dataPagamento">Data de Pagamento:</label>
+                        <input type="date" id="dataPagamento" required class="input-glow" value="">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="valorPagamento">Valor do Pagamento (R$):</label>
+                        <input type="number" id="valorPagamento" min="0" step="0.01" required class="input-glow">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Dias da Semana:</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="recSegunda" name="diasRecibo" value="Segunda">
+                            <label for="recSegunda" class="checkbox-label">Segunda</label>
+                        </div>
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="recTerca" name="diasRecibo" value="Terça">
+                            <label for="recTerca" class="checkbox-label">Terça</label>
+                        </div>
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="recQuarta" name="diasRecibo" value="Quarta">
+                            <label for="recQuarta" class="checkbox-label">Quarta</label>
+                        </div>
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="recQuinta" name="diasRecibo" value="Quinta">
+                            <label for="recQuinta" class="checkbox-label">Quinta</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button type="button" id="gerarReciboBtn" class="btn btn-primary">
+                        <span class="btn-text">Gerar Recibo</span>
+                    </button>
+                    <button type="button" id="limparFormBtn" class="btn btn-secondary">
+                        <span class="btn-text">Limpar</span>
+                    </button>
+                    <button type="button" id="downloadPdfBtn" class="btn btn-primary">
+                        <span class="btn-text">Download PDF</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <div id="reciboPreview" class="recibo-container" style="display: none;">
+            <div class="recibo-header">
+                <h2>RECIBO DE PAGAMENTO</h2>
+                <div class="recibo-logo">
+                    <img src="img/logo.png" alt="Logo">
+                </div>
+            </div>
+            
+            <div class="recibo-body">
+                <div class="recibo-info">
+                    <p>Recebi do(a) aluno(a) <span id="reciboNomeAluno"></span> a quantia de R$ <span id="reciboValor"></span> referente à mensalidade de <span id="reciboMes"></span>.</p>
+                    <p>Período: <span id="reciboPeriodo"></span> | Dias: <span id="reciboDias"></span></p>
+                    <p>Data de Vencimento: <span id="reciboVencimento"></span></p>
+                    <p>Data de Pagamento: <span id="reciboPagamento"></span></p>
+                    <p class="recibo-cnpj">CNPJ: 19.848.909/0001-22</p>
+                </div>
+            </div>
+            
+            <!-- Removidos os botões de impressão e download -->
+        </div>
+    </div>
+
+    <script src="gerador-recibos.js"></script>
+</body>
+</html>
