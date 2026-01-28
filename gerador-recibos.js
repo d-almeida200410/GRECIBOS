@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return `${inicioFormatado} até ${finalFormatado}`;
     }
     
-    // Função para obter os planos adquiridos formatados
+        // Função para obter os planos adquiridos formatados
     function formatarPlanosAdquiridosParaRecibo(planos) {
         if (!planos || !Array.isArray(planos) || planos.length === 0) {
             return 'Nenhum plano especificado';
@@ -129,12 +129,25 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Simplificar a formatação para o recibo
         return planos.map(plano => {
-            if (plano.includes('Alfabetização')) return 'Alfabetização';
-            if (plano.includes('Fundamental I')) return 'Fundamental I (1º ao 3º ano)';
-            if (plano.includes('4º e 5º ano')) return '4º e 5º ano';
-            if (plano.includes('Fundamental II')) return 'Fundamental II (6º e 7º ano)';
-            if (plano.includes('8º ano')) return '8º ano';
-            if (plano.includes('9º ano')) return '9º ano';
+            // Verificar em ordem específica para evitar conflitos
+            if (plano.includes('Alfabetização')) {
+                return 'Alfabetização';
+            }
+            if (plano.includes('4º e 5º ano')) {
+                return '4º e 5º ano';
+            }
+            if (plano.includes('8º ano')) {
+                return '8º ano';
+            }
+            if (plano.includes('9º ano')) {
+                return '9º ano';
+            }
+            if (plano.includes('Fundamental II')) {
+                return 'Fundamental II (6º e 7º ano)';
+            }
+            if (plano.includes('Fundamental I')) {
+                return 'Fundamental I (1º, 2º e 3º ano)';
+            }
             return plano;
         }).join(' | ');
     }
@@ -177,6 +190,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Carregar alunos do Firebase
+        // Carregar alunos do Firebase
     function carregarAlunos() {
         if (!elements.alunoSelect) return;
         
@@ -212,11 +226,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (aluno.tipoPlano) {
                         textoExibicao += ` (${formatarTipoPlanoParaRecibo(aluno.tipoPlano)})`;
                     }
+                    if (aluno.planosAdquiridos && aluno.planosAdquiridos.length > 0) {
+                        // Formatar planos para exibição compacta na lista
+                        const planosFormatados = aluno.planosAdquiridos.map(plano => {
+                            if (plano.includes('Alfabetização')) return 'Alf';
+                            if (plano.includes('Fundamental I')) return 'F1';
+                            if (plano.includes('4º e 5º ano')) return '4/5';
+                            if (plano.includes('Fundamental II')) return 'F2';
+                            if (plano.includes('8º ano')) return '8º';
+                            if (plano.includes('9º ano')) return '9º';
+                            return plano.substring(0, 3);
+                        }).join('+');
+                        textoExibicao += ` [${planosFormatados}]`;
+                    }
                     if (aluno.valor) {
                         textoExibicao += ` - R$ ${aluno.valor}`;
                     }
                     
                     option.textContent = textoExibicao;
+                    option.title = aluno.nome + (aluno.planosAdquiridos ? ` - ${aluno.planosAdquiridos.join(', ')}` : '');
                     elements.alunoSelect.appendChild(option);
                 });
             })
