@@ -31,6 +31,13 @@
                     </select>
                 </div>
                 
+                <!-- NOVO CAMPO: Nome do Responsável (OPCIONAL) -->
+                <div class="form-group">
+                    <label for="nomeResponsavel">Nome do Responsável (opcional):</label>
+                    <input type="text" id="nomeResponsavel" placeholder="Digite o nome do responsável" class="input-glow">
+                    <small class="form-text">Preencha apenas se desejar que o nome do responsável apareça no recibo</small>
+                </div>
+                
                 <div class="form-row">
                     <div class="form-group">
                         <label for="mesReferencia">Mês de Referência:</label>
@@ -102,6 +109,8 @@
             <div class="recibo-body">
                 <div class="recibo-info">
                     <p>Recebi do(a) aluno(a) <span id="reciboNomeAluno"></span> a quantia de R$ <span id="reciboValor"></span> referente à mensalidade de <span id="reciboMes"></span>.</p>
+                    <!-- NOVA LINHA: Responsável (aparece apenas se preenchido) -->
+                    <p id="reciboResponsavelLinha" style="display: none;">Responsável: <span id="reciboNomeResponsavel"></span></p>
                     <p>Plano Contratado: <span id="reciboPlanoContratado"></span></p>
                     <p>Período do Plano: <span id="reciboPeriodoPlano"></span></p>
                     <p>Período de Aula: <span id="reciboPeriodo"></span> | Dias: <span id="reciboDias"></span></p>

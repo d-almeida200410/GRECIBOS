@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return el;
     };
 
-    // Elementos do DOM - Removidos reciboDataEmissao e reciboCnpj que não existem no HTML
+    // Elementos do DOM
     const elements = {
         alunoSelect: getElement('alunoSelect'),
         reciboForm: getElement('reciboForm'),
@@ -38,7 +38,10 @@ document.addEventListener('DOMContentLoaded', function() {
         reciboPagamento: getElement('reciboPagamento'),
         reciboPlanoContratado: getElement('reciboPlanoContratado'),
         reciboPeriodoPlano: getElement('reciboPeriodoPlano'),
-        downloadPdfBtn: getElement('downloadPdfBtn')
+        downloadPdfBtn: getElement('downloadPdfBtn'),
+        nomeResponsavel: getElement('nomeResponsavel'),
+        reciboNomeResponsavel: getElement('reciboNomeResponsavel'),
+        reciboResponsavelLinha: getElement('reciboResponsavelLinha')
     };
 
     // Verificar elementos essenciais
@@ -372,6 +375,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const dataVencimento = document.getElementById('dataVencimento')?.value;
         const dataPagamento = document.getElementById('dataPagamento')?.value;
         const valorPagamento = document.getElementById('valorPagamento')?.value;
+        const nomeResponsavel = elements.nomeResponsavel?.value.trim();
         
         if (!mesReferencia || !dataPagamento || !valorPagamento) {
             alert("Dados incompletos!");
@@ -437,6 +441,20 @@ document.addEventListener('DOMContentLoaded', function() {
         if (elements.reciboVencimento) elements.reciboVencimento.textContent = formatarData(dataVencimento) || '';
         if (elements.reciboPagamento) elements.reciboPagamento.textContent = formatarData(dataPagamento) || '';
         
+        // NOVA FUNCIONALIDADE: Exibir nome do responsável se preenchido
+        if (nomeResponsavel && nomeResponsavel !== '') {
+            if (elements.reciboNomeResponsavel) {
+                elements.reciboNomeResponsavel.textContent = nomeResponsavel;
+            }
+            if (elements.reciboResponsavelLinha) {
+                elements.reciboResponsavelLinha.style.display = 'block';
+            }
+        } else {
+            if (elements.reciboResponsavelLinha) {
+                elements.reciboResponsavelLinha.style.display = 'none';
+            }
+        }
+        
         // Mostrar o recibo com animação
         if (elements.reciboPreview) {
             elements.reciboPreview.style.display = 'block';
@@ -453,6 +471,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         console.log(`Recibo gerado para ${aluno.nome} - Mês: ${mesReferencia}`);
+        if (nomeResponsavel) {
+            console.log(`Responsável: ${nomeResponsavel}`);
+        }
     });
     
     // Função para gerar PDF do recibo
@@ -512,6 +533,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const dataPagamento = document.getElementById('dataPagamento');
             if (dataPagamento) {
                 dataPagamento.value = new Date().toISOString().split('T')[0];
+            }
+            
+            // Limpar campo do responsável também
+            if (elements.nomeResponsavel) {
+                elements.nomeResponsavel.value = '';
             }
             
             if (elements.reciboPreview) {
