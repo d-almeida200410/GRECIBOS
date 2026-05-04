@@ -84,6 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Função para calcular o período RESTANTE do plano baseado no mês atual
+    // CORRIGIDA: Agora permite meses anteriores (dívidas)
     function calcularPeriodoRestantePlano(alunoId, mesReferencia, tipoPlano) {
         if (!mesReferencia || !tipoPlano) return '';
         
@@ -99,12 +100,6 @@ document.addEventListener('DOMContentLoaded', function() {
             mesInicio = mesAtual;
             anoInicio = anoAtual;
             alunoMesInicioPlano[alunoId] = mesReferencia;
-        }
-        
-        // Validar se o mês de referência está dentro do período do plano
-        const validacao = validarMesReferencia(alunoId, mesReferencia, tipoPlano);
-        if (!validacao.valido) {
-            return '';
         }
         
         // Calcular mês final do plano
@@ -125,7 +120,18 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        // Para o recibo do mês atual, mostrar: "Mês atual até mês final"
+        // CORREÇÃO: Verificar se é mês anterior (débito)
+        const dataRef = new Date(anoAtual, mesAtual - 1, 1);
+        const dataInicio = new Date(anoInicio, mesInicio - 1, 1);
+        
+        if (dataRef < dataInicio) {
+            // Para débitos de meses anteriores, mostrar o período do plano completo
+            const inicioFormatado = formatarMesAno(anoInicio, mesInicio);
+            const finalFormatado = formatarMesAno(anoFinal, mesFinal);
+            return `${inicioFormatado} até ${finalFormatado} (pagamento de débito)`;
+        }
+        
+        // Para mês atual ou futuros, mostrar o período restante
         const inicioFormatado = formatarMesAno(anoAtual, mesAtual);
         const finalFormatado = formatarMesAno(anoFinal, mesFinal);
         
@@ -133,6 +139,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Função para validar se o mês de referência está dentro do período do plano
+    // CORRIGIDA: Agora PERMITE meses anteriores (apenas avisa, não bloqueia)
     function validarMesReferencia(alunoId, mesReferencia, tipoPlano) {
         if (!mesReferencia || !tipoPlano) return { valido: true, mensagem: '' };
         
@@ -166,18 +173,20 @@ document.addEventListener('DOMContentLoaded', function() {
         const dataInicio = new Date(anoInicio, mesInicio - 1, 1);
         const dataFinal = new Date(anoFinal, mesFinal - 1, 1);
         
-        if (dataRef < dataInicio) {
-            return { 
-                valido: false, 
-                mensagem: `⚠️ Este plano teve início em ${formatarMesAno(anoInicio, mesInicio)}. Não é possível gerar recibos para meses anteriores.`
-            };
-        }
-        
+        // CORREÇÃO: Só bloqueia meses posteriores ao fim do plano
         if (dataRef > dataFinal) {
             const mesFinalFormatado = formatarMesAno(anoFinal, mesFinal);
             return { 
                 valido: false, 
                 mensagem: `⚠️ Este plano terminou em ${mesFinalFormatado}. Não é possível gerar recibos para meses posteriores.`
+            };
+        }
+        
+        // CORREÇÃO: Para meses anteriores, apenas avisa mas PERMITE (débito)
+        if (dataRef < dataInicio) {
+            return { 
+                valido: true, 
+                mensagem: `ℹ️ Mês anterior ao início do plano (${formatarMesAno(anoInicio, mesInicio)}). Recibo gerado como pagamento de débito.`
             };
         }
         
@@ -353,7 +362,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return `${dia}/${mes}/${ano}`;
     }
     
-    // Gerar recibo
+    // Gerar recibo - CÓDIGO CORRIGIDO
     elements.gerarReciboBtn.addEventListener('click', function() {
         console.log("Botão Gerar Recibo clicado");
         
@@ -386,9 +395,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const tipoPlano = aluno.tipoPlano || 'bimestral';
         const validacao = validarMesReferencia(alunoId, mesReferencia, tipoPlano);
         
+        // CORREÇÃO: Se for inválido (apenas meses posteriores ao fim), bloqueia
         if (!validacao.valido) {
             alert(validacao.mensagem);
             return;
+        }
+        
+        // CORREÇÃO: Se for mês anterior (débito), perguntar se quer continuar
+        if (validacao.mensagem && validacao.mensagem.includes('anterior')) {
+            const continuar = confirm(`${validacao.mensagem}\n\nDeseja continuar gerando o recibo de débito?`);
+            if (!continuar) {
+                return;
+            }
         }
         
         // Atualizar/confirmar mês de início do plano se necessário
